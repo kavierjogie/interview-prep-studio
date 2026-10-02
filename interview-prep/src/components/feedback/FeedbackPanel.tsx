@@ -30,7 +30,7 @@ const LEVEL: Record<DimensionLevel, { label: string; dots: number; cls: string }
 function Section({ title, children, className }: { title: string; children: ReactNode; className?: string }) {
   return (
     <section className={className}>
-      <h4 className="mb-2.5 text-[13px] font-semibold text-muted">{title}</h4>
+      <h4 className="mb-2.5 text-[0.8125rem] font-semibold text-muted">{title}</h4>
       {children}
     </section>
   );
@@ -80,28 +80,28 @@ export function FeedbackPanel({
         </div>
         {feedback.verdictExplanation && <p className="mt-2 text-sm text-muted">{feedback.verdictExplanation}</p>}
         {showLegend && (
-          <div className="mt-3 rounded-xl bg-surface-2 p-3 text-[13px] text-muted">
+          <div className="mt-3 rounded-xl bg-surface-2 p-3 text-[0.8125rem] text-muted">
             The label is a rough guide, not a grade. <strong className="text-ink">Interview-ready</strong> means changes would polish it;{" "}
             <strong className="text-ink">Developing</strong> means a solid base with one clear gap;{" "}
             <strong className="text-ink">Needs work</strong> means key parts are missing. The improvements below matter more than the label.
           </div>
         )}
         {stale && (
-          <p className="mt-3 flex items-start gap-2 rounded-xl bg-marigold-soft px-3 py-2 text-[13px] text-marigold-text">
+          <p className="mt-3 flex items-start gap-2 rounded-xl bg-marigold-soft px-3 py-2 text-[0.8125rem] text-marigold-text">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             You&apos;ve changed the answer since this feedback. Analyse again for up-to-date feedback.
           </p>
         )}
       </div>
 
-      {feedback.overallFeedback && <p className="text-[15.5px] leading-relaxed">{feedback.overallFeedback}</p>}
+      {feedback.overallFeedback && <p className="text-[0.96875rem] leading-relaxed">{feedback.overallFeedback}</p>}
 
       <div className="grid gap-5 md:grid-cols-2">
         {feedback.strengths.length > 0 && (
           <Section title="Strengths">
             <ul className="space-y-2">
               {feedback.strengths.map((s, i) => (
-                <li key={i} className="flex gap-2.5 text-[14.5px]">
+                <li key={i} className="flex gap-2.5 text-[0.90625rem]">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-pine" />
                   <span>{s}</span>
                 </li>
@@ -113,7 +113,7 @@ export function FeedbackPanel({
           <Section title="Improve">
             <ul className="space-y-2">
               {feedback.improvements.map((s, i) => (
-                <li key={i} className="flex gap-2.5 text-[14.5px]">
+                <li key={i} className="flex gap-2.5 text-[0.90625rem]">
                   <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-marigold" />
                   <span>{s}</span>
                 </li>
@@ -132,13 +132,13 @@ export function FeedbackPanel({
               return (
                 <div key={key} className="rounded-xl border border-line p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-display text-[15px] font-semibold capitalize">{key}</span>
+                    <span className="font-display text-[0.9375rem] font-semibold capitalize">{key}</span>
                     <span className={cn("inline-flex items-center gap-1 text-xs font-medium", meta.cls)}>
                       <meta.Icon className="h-3.5 w-3.5" />
                       {meta.label}
                     </span>
                   </div>
-                  {el.comment && <p className="mt-1.5 text-[13px] leading-snug text-muted">{el.comment}</p>}
+                  {el.comment && <p className="mt-1.5 text-[0.8125rem] leading-snug text-muted">{el.comment}</p>}
                 </div>
               );
             })}
@@ -165,7 +165,7 @@ export function FeedbackPanel({
                       ))}
                     </span>
                   </div>
-                  {d.note && <p className="text-[13px] text-muted">{d.note}</p>}
+                  {d.note && <p className="text-[0.8125rem] text-muted">{d.note}</p>}
                 </li>
               );
             })}
@@ -177,7 +177,7 @@ export function FeedbackPanel({
         <Section title="Try this">
           <ul className="space-y-2">
             {feedback.suggestedImprovements.map((s, i) => (
-              <li key={i} className="rounded-xl bg-surface-2 px-3.5 py-2.5 text-[14.5px]">
+              <li key={i} className="rounded-xl bg-surface-2 px-3.5 py-2.5 text-[0.90625rem]">
                 {s}
               </li>
             ))}
@@ -188,7 +188,7 @@ export function FeedbackPanel({
       {feedback.suggestedAnswer && (
         <Section title="Suggested version">
           <div className="rounded-xl border border-pine/30 bg-pine-soft/50 p-4">
-            <p className="whitespace-pre-line text-[14.5px] leading-relaxed">{feedback.suggestedAnswer}</p>
+            <p className="whitespace-pre-line text-[0.90625rem] leading-relaxed">{feedback.suggestedAnswer}</p>
             <p className="mt-3 text-xs text-muted">
               Built only from details in your answer. Fill in anything in [square brackets] and keep it in your own words.
             </p>
@@ -208,7 +208,7 @@ export function FeedbackPanel({
 
       {feedback.followUpQuestions.length > 0 && (
         <Section title="Likely follow-up questions">
-          <ol className="list-decimal space-y-1.5 pl-5 text-[14.5px] marker:text-faint">
+          <ol className="list-decimal space-y-1.5 pl-5 text-[0.90625rem] marker:text-faint">
             {feedback.followUpQuestions.map((q, i) => (
               <li key={i}>{q}</li>
             ))}

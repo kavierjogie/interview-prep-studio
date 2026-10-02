@@ -9,15 +9,19 @@ import { formatDuration, relativeTime } from "@/lib/utils";
 import { RatingBadge } from "@/components/questions/QuestionBits";
 import { Badge } from "@/components/ui/Badge";
 import { Collapsible } from "@/components/ui/Collapsible";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
 
 export function SessionHistory({ limit = 8, mode }: { limit?: number; mode?: PracticeSession["mode"] }) {
-  const { data, deleteSession } = useStore();
+  const { data, deleteSession, restoreDeleted } = useStore();
   const toast = useToast();
   const [showAll, setShowAll] = useState(false);
-  const [toDelete, setToDelete] = useState<PracticeSession | null>(null);
+
+  const remove = (s: PracticeSession) => {
+    const before = data;
+    deleteSession(s.id);
+    toast.success("Session deleted", { label: "Undo", onClick: () => restoreDeleted(before) });
+  };
 
   const sessions = data.sessions
     .filter((s) => (!mode || s.mode === mode) && s.attemptIds.length > 0)
@@ -79,7 +83,7 @@ export function SessionHistory({ limit = 8, mode }: { limit?: number; mode?: Pra
               ) : (
                 <span />
               )}
-              <button type="button" onClick={() => setToDelete(s)} className="inline-flex items-center gap-1 text-[13px] text-muted hover:text-rose-text">
+              <button type="button" onClick={() => remove(s)} className="inline-flex items-center gap-1 text-[0.8125rem] text-muted hover:text-rose-text">
                 <Trash2 className="h-3.5 w-3.5" /> Delete session
               </button>
             </div>
@@ -91,18 +95,6 @@ export function SessionHistory({ limit = 8, mode }: { limit?: number; mode?: Pra
           {showAll ? "Show fewer" : `Show all ${sessions.length} sessions`}
         </button>
       )}
-      <ConfirmDialog
-        open={!!toDelete}
-        onCancel={() => setToDelete(null)}
-        title="Delete this session?"
-        message="Its attempts and any AI feedback on them will be removed from your history. Your questions and saved answers are not affected."
-        confirmLabel="Delete session"
-        onConfirm={() => {
-          if (toDelete) deleteSession(toDelete.id);
-          setToDelete(null);
-          toast.success("Session deleted");
-        }}
-      />
     </div>
   );
 }

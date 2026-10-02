@@ -1,18 +1,16 @@
-"use client";
-
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/** Native <details>: keyboard and screen-reader support built in; open/close motion lives in globals.css. */
 export function Collapsible({ title, children, defaultOpen = false, className }: { title: ReactNode; children: ReactNode; defaultOpen?: boolean; className?: string }) {
-  const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className={cn("rounded-xl border border-line", className)}>
-      <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium">
+    <details open={defaultOpen} className={cn("group rounded-xl border border-line", className)}>
+      <summary className="flex cursor-pointer list-none rounded-xl transition-colors hover:bg-surface-2 active:bg-sunken group-open:rounded-b-none items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium [&::-webkit-details-marker]:hidden">
         <span className="min-w-0">{title}</span>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 text-faint transition-transform", open && "rotate-180")} />
-      </button>
-      {open && <div className="border-t border-line px-4 py-3">{children}</div>}
-    </div>
+        <ChevronDown className="h-4 w-4 shrink-0 text-faint transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="border-t border-line px-4 py-3">{children}</div>
+    </details>
   );
 }

@@ -50,7 +50,7 @@ export function ConfirmDialog({
         </>
       }
     >
-      <div className="text-[15px] text-muted">{message}</div>
+      <div className="text-[0.9375rem] text-muted">{message}</div>
     </Modal>
   );
 }

@@ -13,7 +13,6 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Button, ButtonLink, IconButton } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input, Select } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
@@ -73,7 +72,7 @@ export function StoriesView() {
         <>
           <Card className="mb-6">
             <CardBody className="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:gap-6">
-              <p className="text-[15px]">
+              <p className="text-[0.9375rem]">
                 <span className="font-display text-xl font-semibold">{data.stories.length}</span>{" "}
                 {data.stories.length === 1 ? "story covers" : "stories cover"}{" "}
                 <span className="font-display text-xl font-semibold">{coveredQuestions}</span> questions in your bank.
@@ -107,7 +106,7 @@ export function StoriesView() {
                   aria-pressed={tag === t}
                   onClick={() => setTag(tag === t ? null : t)}
                   className={cn(
-                    "shrink-0 rounded-full border px-3 py-1 text-[13px] font-medium",
+                    "shrink-0 rounded-full border px-3 py-1 text-[0.8125rem] font-medium",
                     tag === t ? "border-ink bg-ink text-surface" : "border-line bg-surface text-muted hover:text-ink",
                   )}
                 >
@@ -142,7 +141,7 @@ function StarDots({ story }: { story: Story }) {
             key={s.key}
             title={`${s.title}: ${filled ? "written" : "empty"}`}
             className={cn(
-              "flex h-5 w-5 items-center justify-center rounded-md font-display text-[11px] font-bold",
+              "flex h-5 w-5 items-center justify-center rounded-md font-display text-[0.6875rem] font-bold",
               filled ? "bg-pine-soft text-pine-text" : "bg-sunken text-faint",
             )}
           >
@@ -156,19 +155,19 @@ function StarDots({ story }: { story: Story }) {
 
 function StoryCard({ story, questionCount }: { story: Story; questionCount: number }) {
   return (
-    <Link href={`/stories/${story.id}`} className="group flex flex-col rounded-2xl border border-line bg-surface p-5 transition-colors hover:border-line-strong">
+    <Link href={`/stories/${story.id}`} className="group flex flex-col rounded-2xl border border-line bg-surface p-5 press hover:border-line-strong">
       <div className="flex items-center justify-between gap-3">
         <Badge tone="outline">{story.context}</Badge>
         <StarDots story={story} />
       </div>
-      <h3 className="mt-3 text-[17px] font-semibold leading-snug group-hover:underline group-hover:underline-offset-2">{story.title}</h3>
+      <h3 className="mt-3 text-[1.0625rem] font-semibold leading-snug group-hover:underline group-hover:underline-offset-2">{story.title}</h3>
       {story.description && <p className="mt-1 line-clamp-2 text-sm text-muted">{story.description}</p>}
       <div className="mt-3 flex flex-wrap gap-1.5">
         {story.tags.slice(0, 4).map((t) => (
           <Badge key={t}>{t}</Badge>
         ))}
       </div>
-      <p className="mt-auto pt-4 text-[13px] font-medium text-pine-text">
+      <p className="mt-auto pt-4 text-[0.8125rem] font-medium text-pine-text">
         {questionCount === 0 ? <span className="text-faint">Not linked to any questions</span> : `Answers ${questionCount} question${questionCount === 1 ? "" : "s"}`}
       </p>
     </Link>
@@ -202,11 +201,10 @@ export function NewStoryView() {
 
 export function StoryDetailView() {
   const { id } = useParams<{ id: string }>();
-  const { data, deleteStory } = useStore();
+  const { data, deleteStory, restoreDeleted } = useStore();
   const router = useRouter();
   const toast = useToast();
   const [editing, setEditing] = useState(false);
-  const [confirm, setConfirm] = useState(false);
   const story = data.stories.find((s) => s.id === id);
 
   if (!story) {
@@ -218,6 +216,14 @@ export function StoryDetailView() {
       />
     );
   }
+
+  const storyId = story.id;
+  const remove = () => {
+    const before = data;
+    deleteStory(storyId);
+    toast.success("Story deleted", { label: "Undo", onClick: () => restoreDeleted(before) });
+    router.push("/stories");
+  };
 
   if (editing) {
     return (
@@ -256,7 +262,7 @@ export function StoryDetailView() {
         description={story.description || undefined}
         actions={
           <>
-            <IconButton label="Delete story" onClick={() => setConfirm(true)}>
+            <IconButton label="Delete story" onClick={remove}>
               <Trash2 className="h-4 w-4" />
             </IconButton>
             <Button variant="primary" icon={<Pencil className="h-4 w-4" />} onClick={() => setEditing(true)}>
@@ -283,7 +289,7 @@ export function StoryDetailView() {
             <ol className="space-y-6">
               {STAR_STEPS.map((step) => (
                 <li key={step.key} className="flex gap-4">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pine font-display text-[15px] font-bold text-pine-ink">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-pine font-display text-[0.9375rem] font-bold text-pine-ink">
                     {step.letter}
                   </span>
                   <div className="min-w-0">
@@ -337,19 +343,6 @@ export function StoryDetailView() {
           </CardBody>
         </Card>
       </div>
-
-      <ConfirmDialog
-        open={confirm}
-        onCancel={() => setConfirm(false)}
-        title="Delete this story?"
-        message={`“${story.title}” will be removed and unlinked from ${questions.length} question${questions.length === 1 ? "" : "s"}. Your questions and answers are kept.`}
-        confirmLabel="Delete story"
-        onConfirm={() => {
-          deleteStory(story.id);
-          toast.success("Story deleted");
-          router.push("/stories");
-        }}
-      />
     </>
   );
 }

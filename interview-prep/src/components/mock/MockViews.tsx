@@ -94,7 +94,7 @@ export function MockView() {
                 aria-checked={selected}
                 onClick={() => setTemplateId(id)}
                 className={cn(
-                  "flex w-full items-start gap-4 rounded-2xl border bg-surface p-4 text-left transition-colors sm:p-5",
+                  "flex w-full items-start gap-4 rounded-2xl border bg-surface p-4 text-left press sm:p-5",
                   selected ? "border-pine ring-1 ring-pine" : "border-line hover:border-line-strong",
                 )}
               >
@@ -103,8 +103,8 @@ export function MockView() {
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="font-display text-[17px] font-semibold">{t?.title ?? "Custom interview"}</span>
-                    <span className="text-[13px] text-muted">{t ? `${t.questions.length} questions, ${t.durationHint.toLowerCase()}` : "Choose your own questions"}</span>
+                    <span className="font-display text-[1.0625rem] font-semibold">{t?.title ?? "Custom interview"}</span>
+                    <span className="text-[0.8125rem] text-muted">{t ? `${t.questions.length} questions, ${t.durationHint.toLowerCase()}` : "Choose your own questions"}</span>
                   </span>
                   <span className="mt-0.5 block text-sm text-muted">{t?.description ?? "Pick any questions from your bank, in the order you want them asked."}</span>
                 </span>
@@ -231,7 +231,7 @@ export function MockSummaryView() {
             ) : (
               <ul className="space-y-2">
                 {summary.strengths.map((s, i) => (
-                  <li key={i} className="flex gap-2.5 text-[14.5px]">
+                  <li key={i} className="flex gap-2.5 text-[0.90625rem]">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-pine" />
                     {s}
                   </li>
@@ -248,7 +248,7 @@ export function MockSummaryView() {
             ) : (
               <ul className="space-y-2">
                 {summary.improvements.map((s, i) => (
-                  <li key={i} className="flex gap-2.5 text-[14.5px]">
+                  <li key={i} className="flex gap-2.5 text-[0.90625rem]">
                     <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-marigold" />
                     {s}
                   </li>
@@ -268,7 +268,7 @@ export function MockSummaryView() {
                 ? `Get detailed AI feedback on the ${pending.length} answer${pending.length === 1 ? "" : "s"} not yet analysed. Each answer is sent on its own.`
                 : "Every answer in this interview has AI feedback."}
             </p>
-            {aiStatus && !aiStatus.aiConfigured && <p className="mt-1 text-[13px] text-faint">AI isn&apos;t configured on this deployment (no GROQ_API_KEY).</p>}
+            {aiStatus && !aiStatus.aiConfigured && <p className="mt-1 text-[0.8125rem] text-faint">AI isn&apos;t configured on this deployment (no GROQ_API_KEY).</p>}
           </div>
           {pending.length > 0 && (
             <Button variant="primary" icon={<Sparkles className="h-4 w-4" />} onClick={analyseAll} loading={!!bulk} className="shrink-0">
@@ -339,7 +339,7 @@ function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: s
   return (
     <Card>
       <CardBody className="py-4">
-        <p className="flex items-center gap-1.5 text-[13px] text-muted">
+        <p className="flex items-center gap-1.5 text-[0.8125rem] text-muted">
           {icon}
           {label}
         </p>
@@ -368,7 +368,7 @@ function AttemptReview({ attempt, index }: { attempt: PracticeAttempt; index: nu
           <p className="text-sm text-muted">You skipped this question.</p>
         ) : (
           <>
-            <p className="whitespace-pre-line text-[14.5px] leading-relaxed">{attempt.answer}</p>
+            <p className="whitespace-pre-line text-[0.90625rem] leading-relaxed">{attempt.answer}</p>
             <div className="border-t border-line pt-4">
               <AnalyzePanel
                 question={attempt.questionText}

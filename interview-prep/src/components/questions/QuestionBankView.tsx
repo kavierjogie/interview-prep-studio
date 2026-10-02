@@ -137,7 +137,7 @@ export function QuestionBankView() {
             </div>
           </div>
 
-          <div className="mt-5 flex items-center justify-between text-[13px] text-muted">
+          <div className="mt-5 flex items-center justify-between text-[0.8125rem] text-muted">
             <span>
               Showing {filtered.length} of {data.questions.length}
             </span>
@@ -182,7 +182,7 @@ function CategoryChip({ active, onClick, label, count }: { active: boolean; onCl
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] font-medium transition-colors",
+        "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[0.8125rem] font-medium press",
         active ? "border-ink bg-ink text-surface" : "border-line bg-surface text-muted hover:border-line-strong hover:text-ink",
       )}
     >
@@ -194,9 +194,9 @@ function CategoryChip({ active, onClick, label, count }: { active: boolean; onCl
 
 function QuestionRow({ q }: { q: Question }) {
   return (
-    <li className="group relative flex items-start gap-4 px-4 py-3.5 hover:bg-surface-2 sm:px-5">
+    <li className="group relative flex items-start gap-4 px-4 py-3.5 hover:bg-surface-2 active:bg-sunken sm:px-5">
       <div className="min-w-0 flex-1">
-        <Link href={`/questions/${q.id}`} className="text-[15.5px] font-medium leading-snug after:absolute after:inset-0">
+        <Link href={`/questions/${q.id}`} className="text-[0.96875rem] font-medium leading-snug after:absolute after:inset-0">
           {q.text}
         </Link>
         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
@@ -218,7 +218,7 @@ function QuestionRow({ q }: { q: Question }) {
       <Link
         href={`/practice?q=${q.id}`}
         aria-label={`Practise: ${q.text}`}
-        className="relative z-10 hidden h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium text-pine-text hover:bg-pine-soft sm:inline-flex"
+        className="relative z-10 hidden h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-[0.8125rem] font-medium text-pine-text hover:bg-pine-soft sm:inline-flex"
       >
         <Play className="h-3.5 w-3.5" /> Practise
       </Link>

@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { getDriver, THEME_KEY, type DriverName } from "./storage/drivers";
 import { buildSampleData, emptyData, SAMPLE_PREFIX, SCHEMA_VERSION } from "./sample-data";
+import { restoreDeleted as mergeDeleted } from "./restore";
 import { sanitizeAppData } from "./validate";
 import type {
   AppData,
@@ -68,6 +69,8 @@ interface StoreValue {
   replaceAll(data: AppData): Promise<void>;
   resetAll(withSamples: boolean): Promise<void>;
   removeSampleData(): void;
+  /** Undo for deletes: pass the `data` from before the delete. */
+  restoreDeleted(before: AppData): void;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
@@ -85,7 +88,15 @@ function applyTheme(theme: Settings["theme"]) {
     /* ignore */
   }
   const dark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  const next = dark ? "dark" : "light";
+  const root = document.documentElement;
+  if (root.dataset.theme === next) return;
+  // Cross-fade instead of an abrupt brightness jump, where the browser supports view transitions.
+  const apply = () => {
+    root.dataset.theme = next;
+  };
+  if (document.startViewTransition) document.startViewTransition(apply);
+  else apply();
 }
 
 function makeQuestion(input: QuestionInput): Question {
@@ -480,6 +491,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const restoreDeleted = useCallback((before: AppData) => setData((d) => mergeDeleted(before, d)), []);
+
   const value = useMemo<StoreValue>(
     () => ({
       ready,
@@ -507,11 +520,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       replaceAll,
       resetAll,
       removeSampleData,
+      restoreDeleted,
     }),
     [
       ready, driver, storageError, data, addQuestion, addQuestions, updateQuestion, deleteQuestion, addStory, updateStory,
       deleteStory, setStoryQuestions, startSession, recordAttempt, updateAttempt, finishSession, updateSession, deleteSession,
-      addJobPrep, updateJobPrep, deleteJobPrep, updateSettings, replaceAll, resetAll, removeSampleData,
+      addJobPrep, updateJobPrep, deleteJobPrep, updateSettings, replaceAll, resetAll, removeSampleData, restoreDeleted,
     ],
   );
 

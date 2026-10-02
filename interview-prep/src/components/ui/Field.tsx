@@ -2,7 +2,7 @@ import { forwardRef, type InputHTMLAttributes, type ReactNode, type SelectHTMLAt
 import { cn } from "@/lib/utils";
 
 const control =
-  "w-full rounded-[10px] border border-line-strong bg-surface px-3 text-[15px] text-ink placeholder:text-faint transition-colors hover:border-faint focus:border-pine focus:outline-none focus:ring-2 focus:ring-pine/20 disabled:opacity-60";
+  "w-full rounded-[10px] border border-line-strong bg-surface px-3 text-[0.9375rem] text-ink placeholder:text-faint transition-colors hover:border-faint focus:border-pine focus:outline-none focus:ring-2 focus:ring-pine/20 disabled:opacity-60";
 
 export function Field({
   label,
@@ -29,11 +29,11 @@ export function Field({
       </label>
       {children}
       {error ? (
-        <p className="text-[13px] text-rose-text" role="alert">
+        <p className="text-[0.8125rem] text-rose-text" role="alert">
           {error}
         </p>
       ) : hint ? (
-        <p className="text-[13px] text-muted">{hint}</p>
+        <p className="text-[0.8125rem] text-muted">{hint}</p>
       ) : null}
     </div>
   );

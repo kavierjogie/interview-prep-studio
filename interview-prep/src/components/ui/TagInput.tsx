@@ -46,7 +46,7 @@ export function TagInput({
     <div className="space-y-2">
       <div className="flex min-h-10 flex-wrap items-center gap-1.5 rounded-[10px] border border-line-strong bg-surface px-2 py-1.5 focus-within:border-pine focus-within:ring-2 focus-within:ring-pine/20">
         {value.map((tag) => (
-          <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-sunken py-0.5 pl-2.5 pr-1 text-[13px]">
+          <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-sunken py-0.5 pl-2.5 pr-1 text-[0.8125rem]">
             {tag}
             <button type="button" aria-label={`Remove ${tag}`} onClick={() => onChange(value.filter((t) => t !== tag))} className="rounded-full p-0.5 text-faint hover:bg-line hover:text-ink">
               <X className="h-3 w-3" />
@@ -60,7 +60,7 @@ export function TagInput({
           onKeyDown={onKey}
           onBlur={() => draft && add(draft)}
           placeholder={value.length ? "" : placeholder}
-          className="min-w-[8rem] flex-1 bg-transparent px-1 py-1 text-[15px] outline-none placeholder:text-faint"
+          className="min-w-[8rem] flex-1 bg-transparent px-1 py-1 text-[0.9375rem] outline-none placeholder:text-faint"
         />
       </div>
       {available.length > 0 && (
@@ -70,7 +70,7 @@ export function TagInput({
               key={s}
               type="button"
               onClick={() => add(s)}
-              className={cn("rounded-full border border-dashed border-line-strong px-2.5 py-0.5 text-[13px] text-muted hover:border-pine hover:text-pine-text")}
+              className={cn("rounded-full border border-dashed border-line-strong px-2.5 py-0.5 text-[0.8125rem] text-muted hover:border-pine hover:text-pine-text")}
             >
               + {s}
             </button>

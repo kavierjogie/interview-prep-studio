@@ -21,8 +21,9 @@ export const viewport: Viewport = {
   ],
 };
 
-/** Applies the saved theme before first paint to avoid a light/dark flash. */
-const themeScript = `(function(){try{var t=localStorage.getItem('ips-theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';}catch(e){}})();`;
+/** Applies the saved theme before first paint to avoid a light/dark flash, and adds the touch listener
+ * iOS Safari needs before it shows :active press states. */
+const themeScript = `(function(){try{var t=localStorage.getItem('ips-theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';}catch(e){}document.addEventListener('touchstart',function(){},{passive:true});})();`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

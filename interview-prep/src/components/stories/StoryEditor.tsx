@@ -4,6 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { STORY_CONTEXTS, STORY_TAGS } from "@/lib/categories";
 import { estimateSpeakingSec } from "@/lib/local-checks";
 import { useStore, type StoryInput } from "@/lib/store";
+import { useUnsavedGuard } from "@/lib/use-unsaved-guard";
 import type { CategoryId, Story, StoryContext } from "@/lib/types";
 import { cn, formatDuration, wordCount } from "@/lib/utils";
 import { QuestionPicker } from "@/components/questions/QuestionPicker";
@@ -69,7 +70,7 @@ export function StoryEditor({
   onCancel: () => void;
 }) {
   const { data, addStory, updateStory, setStoryQuestions } = useStore();
-  const [form, setForm] = useState<StoryInput>({
+  const [initialForm] = useState<StoryInput>(() => ({
     title: initial?.title ?? "",
     description: initial?.description ?? "",
     context: initial?.context ?? "University",
@@ -79,11 +80,14 @@ export function StoryEditor({
     result: initial?.result ?? "",
     skills: initial?.skills ?? [],
     tags: initial?.tags ?? [],
-  });
+  }));
+  const [form, setForm] = useState<StoryInput>(initialForm);
   const [questionIds, setQuestionIds] = useState<string[]>(() =>
     initial ? data.questions.filter((q) => q.storyIds.includes(initial.id)).map((q) => q.id) : [],
   );
+  const [initialQuestionIds] = useState(questionIds);
   const [error, setError] = useState<string | null>(null);
+  useUnsavedGuard(JSON.stringify(form) !== JSON.stringify(initialForm) || questionIds.join() !== initialQuestionIds.join());
 
   const set = <K extends keyof StoryInput>(key: K, value: StoryInput[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -166,7 +170,7 @@ export function StoryEditor({
                   {i < STAR_STEPS.length - 1 && <span className="absolute left-[17px] top-10 h-[calc(100%-12px)] w-px bg-line" aria-hidden="true" />}
                   <span
                     className={cn(
-                      "z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-[15px] font-bold transition-colors",
+                      "z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-[0.9375rem] font-bold transition-colors",
                       filled ? "bg-pine text-pine-ink" : "border border-line-strong bg-surface text-muted",
                     )}
                     aria-hidden="true"
@@ -177,7 +181,7 @@ export function StoryEditor({
                     <label htmlFor={`s-${step.key}`} className="block font-display text-base font-semibold">
                       {step.title}
                     </label>
-                    <p className="text-[13px] text-muted">{step.prompt}</p>
+                    <p className="text-[0.8125rem] text-muted">{step.prompt}</p>
                     <Textarea
                       id={`s-${step.key}`}
                       value={value}

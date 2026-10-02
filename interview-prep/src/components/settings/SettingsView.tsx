@@ -11,7 +11,6 @@ import { buildExport, MAX_IMPORT_BYTES, parseImportText } from "@/lib/validate";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Field, Input, Select } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
 import { Segmented } from "@/components/ui/Segmented";
@@ -20,7 +19,7 @@ import { useToast } from "@/components/ui/Toast";
 const DRIVER_LABEL = { indexeddb: "IndexedDB (this browser)", localstorage: "localStorage (this browser)", memory: "Temporary memory only" } as const;
 
 export function SettingsView() {
-  const { data, driver, updateSettings, replaceAll, resetAll, removeSampleData } = useStore();
+  const { data, driver, updateSettings, replaceAll, resetAll, removeSampleData, restoreDeleted } = useStore();
   const toast = useToast();
   const ai = useAiStatus();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -28,7 +27,12 @@ export function SettingsView() {
   const [role, setRole] = useState(data.settings.targetRole);
   const [pendingImport, setPendingImport] = useState<{ data: AppData; counts: Record<string, number>; fileName: string } | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
-  const [confirmSamples, setConfirmSamples] = useState(false);
+
+  const removeSamples = () => {
+    const before = data;
+    removeSampleData();
+    toast.success("Sample content removed", { label: "Undo", onClick: () => restoreDeleted(before) });
+  };
   const [confirmReset, setConfirmReset] = useState(false);
   const [resetWithSamples, setResetWithSamples] = useState(false);
 
@@ -152,21 +156,21 @@ export function SettingsView() {
                   </div>
                 ))}
               </dl>
-              <p className="flex items-center gap-2 text-[13px] text-muted">
+              <p className="flex items-center gap-2 text-[0.8125rem] text-muted">
                 <Database className="h-4 w-4" /> Stored in: {driver ? DRIVER_LABEL[driver] : "Loading…"}
               </p>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-line p-4">
                   <p className="font-medium">Export</p>
-                  <p className="mb-3 mt-0.5 text-[13px] text-muted">Download everything as a JSON file you can import later or on another device.</p>
+                  <p className="mb-3 mt-0.5 text-[0.8125rem] text-muted">Download everything as a JSON file you can import later or on another device.</p>
                   <Button icon={<Download className="h-4 w-4" />} onClick={exportData}>
                     Export data
                   </Button>
                 </div>
                 <div className="rounded-xl border border-line p-4">
                   <p className="font-medium">Import</p>
-                  <p className="mb-3 mt-0.5 text-[13px] text-muted">Restore from an export. You&apos;ll confirm before anything is replaced.</p>
+                  <p className="mb-3 mt-0.5 text-[0.8125rem] text-muted">Restore from an export. You&apos;ll confirm before anything is replaced.</p>
                   <input ref={fileRef} type="file" accept="application/json,.json" className="sr-only" id="import-file" onChange={(e) => onFile(e.target.files?.[0])} />
                   <Button icon={<Upload className="h-4 w-4" />} onClick={() => fileRef.current?.click()}>
                     Import data
@@ -184,9 +188,9 @@ export function SettingsView() {
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="text-sm font-medium">Remove sample content</p>
-                      <p className="text-[13px] text-muted">Deletes the example questions, stories and history. Your own items stay.</p>
+                      <p className="text-[0.8125rem] text-muted">Deletes the example questions, stories and history. Your own items stay.</p>
                     </div>
-                    <Button size="sm" onClick={() => setConfirmSamples(true)}>
+                    <Button size="sm" onClick={removeSamples}>
                       Remove samples
                     </Button>
                   </div>
@@ -194,7 +198,7 @@ export function SettingsView() {
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm font-medium text-rose-text">Reset all data</p>
-                    <p className="text-[13px] text-muted">Permanently deletes everything stored by this app in this browser.</p>
+                    <p className="text-[0.8125rem] text-muted">Permanently deletes everything stored by this app in this browser.</p>
                   </div>
                   <Button size="sm" variant="danger" icon={<Trash2 className="h-3.5 w-3.5" />} onClick={() => setConfirmReset(true)}>
                     Reset everything
@@ -208,7 +212,7 @@ export function SettingsView() {
         <div className="space-y-6">
           <Card>
             <CardHeader title="Privacy" />
-            <CardBody className="space-y-4 text-[14.5px]">
+            <CardBody className="space-y-4 text-[0.90625rem]">
               <p className="flex gap-3">
                 <Lock className="mt-0.5 h-4 w-4 shrink-0 text-pine" />
                 <span>
@@ -240,7 +244,7 @@ export function SettingsView() {
                 <Server className="h-4 w-4 text-muted" />
                 {ai === null ? "Checking…" : ai.aiConfigured ? <span>Connected to Groq{ai.model ? ` (${ai.model})` : ""}</span> : <span>Not configured</span>}
               </p>
-              <p className="text-[13px] text-muted">
+              <p className="text-[0.8125rem] text-muted">
                 The Groq API key lives only on the server as the <code className="rounded bg-sunken px-1">GROQ_API_KEY</code> environment variable. It never
                 reaches your browser.
               </p>
@@ -293,19 +297,6 @@ export function SettingsView() {
           </div>
         )}
       </Modal>
-
-      <ConfirmDialog
-        open={confirmSamples}
-        onCancel={() => setConfirmSamples(false)}
-        title="Remove sample content?"
-        message="Sample questions, stories and practice history will be deleted. Anything you created or edited as a new item stays."
-        confirmLabel="Remove samples"
-        onConfirm={() => {
-          removeSampleData();
-          setConfirmSamples(false);
-          toast.success("Sample content removed");
-        }}
-      />
 
       <Modal
         open={confirmReset}

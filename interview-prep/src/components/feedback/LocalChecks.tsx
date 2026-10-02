@@ -10,7 +10,7 @@ export function LocalChecks({ checks }: { checks: LocalCheck[] }) {
           {c.passed ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-pine" /> : <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-marigold" />}
           <div>
             <p className="text-sm font-medium">{c.label}</p>
-            <p className="text-[13px] text-muted">{c.detail}</p>
+            <p className="text-[0.8125rem] text-muted">{c.detail}</p>
           </div>
         </li>
       ))}

@@ -39,11 +39,11 @@ export function DashboardView() {
       <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm text-muted">{new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}</p>
-          <h1 className="mt-1 text-[30px] font-semibold leading-tight sm:text-[36px]">
+          <h1 className="mt-1 text-[1.875rem] font-semibold leading-tight sm:text-[2.25rem]">
             {greeting()}
             {name ? `, ${name}` : ""}
           </h1>
-          <p className="mt-1.5 text-[15px] text-muted">
+          <p className="mt-1.5 text-[0.9375rem] text-muted">
             {recs.length > 0 ? `${recs.length} questions are ready for your next session.` : "Your question bank is in great shape."}
           </p>
         </div>
@@ -111,7 +111,7 @@ export function DashboardView() {
                     <li key={f.categoryId}>
                       <Link href={`/practice?category=${f.categoryId}`} className="group block">
                         <p className="text-sm font-medium group-hover:underline">{f.label}</p>
-                        <p className="text-[13px] text-muted">{f.reason}</p>
+                        <p className="text-[0.8125rem] text-muted">{f.reason}</p>
                       </Link>
                     </li>
                   ))}
@@ -135,12 +135,12 @@ export function DashboardView() {
             <Link href="/questions" className="rounded-2xl border border-line bg-surface p-4 hover:border-line-strong">
               <Library className="h-5 w-5 text-pine" />
               <p className="mt-3 font-display text-2xl font-semibold">{data.questions.length}</p>
-              <p className="text-[13px] text-muted">Question bank</p>
+              <p className="text-[0.8125rem] text-muted">Question bank</p>
             </Link>
             <Link href="/stories" className="rounded-2xl border border-line bg-surface p-4 hover:border-line-strong">
               <BookOpenText className="h-5 w-5 text-pine" />
               <p className="mt-3 font-display text-2xl font-semibold">{data.stories.length}</p>
-              <p className="text-[13px] text-muted">STAR stories</p>
+              <p className="text-[0.8125rem] text-muted">STAR stories</p>
             </Link>
           </div>
 

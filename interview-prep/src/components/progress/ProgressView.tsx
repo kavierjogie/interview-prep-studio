@@ -101,9 +101,9 @@ export function ProgressView() {
                     <li key={f.categoryId} className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-medium">{f.label}</p>
-                        <p className="text-[13px] text-muted">{f.reason}</p>
+                        <p className="text-[0.8125rem] text-muted">{f.reason}</p>
                       </div>
-                      <Link href={`/practice?category=${f.categoryId}`} className="shrink-0 text-[13px] font-medium text-pine-text hover:underline">
+                      <Link href={`/practice?category=${f.categoryId}`} className="shrink-0 text-[0.8125rem] font-medium text-pine-text hover:underline">
                         Practise
                       </Link>
                     </li>

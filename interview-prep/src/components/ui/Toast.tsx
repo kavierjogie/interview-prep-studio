@@ -5,17 +5,26 @@ import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ToastTone = "success" | "error" | "info";
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 interface ToastItem {
   id: number;
   tone: ToastTone;
   message: string;
+  action?: ToastAction;
+  leaving?: boolean;
 }
 
 interface ToastApi {
-  success(message: string): void;
+  success(message: string, action?: ToastAction): void;
   error(message: string): void;
   info(message: string): void;
 }
+
+const EXIT_MS = 160;
 
 const ToastContext = createContext<ToastApi | null>(null);
 
@@ -29,18 +38,23 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const next = useRef(1);
 
-  const dismiss = useCallback((id: number) => setToasts((t) => t.filter((x) => x.id !== id)), []);
+  /** Plays the exit animation, then removes the toast. */
+  const dismiss = useCallback((id: number) => {
+    setToasts((t) => t.map((x) => (x.id === id ? { ...x, leaving: true } : x)));
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), EXIT_MS);
+  }, []);
   const push = useCallback(
-    (tone: ToastTone, message: string) => {
+    (tone: ToastTone, message: string, action?: ToastAction) => {
       const id = next.current++;
-      setToasts((t) => [...t.slice(-3), { id, tone, message }]);
-      setTimeout(() => dismiss(id), tone === "error" ? 7000 : 3500);
+      setToasts((t) => [...t.slice(-3), { id, tone, message, action }]);
+      // Toasts with an action (e.g. Undo) stay long enough to reach for it.
+      setTimeout(() => dismiss(id), tone === "error" ? 7000 : action ? 6000 : 3500);
     },
     [dismiss],
   );
 
   const api = useMemo<ToastApi>(
-    () => ({ success: (m) => push("success", m), error: (m) => push("error", m), info: (m) => push("info", m) }),
+    () => ({ success: (m, a) => push("success", m, a), error: (m) => push("error", m), info: (m) => push("info", m) }),
     [push],
   );
 
@@ -57,11 +71,26 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div
               key={t.id}
               role={t.tone === "error" ? "alert" : "status"}
-              className="animate-toast pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-sm shadow-lg"
+              className={cn(
+                t.leaving ? "animate-toast-out pointer-events-none" : "animate-toast pointer-events-auto",
+                "flex w-full max-w-sm items-start gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-sm shadow-lg",
+              )}
             >
               <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", toneCls[t.tone])} />
               <p className="flex-1 text-ink">{t.message}</p>
-              <button type="button" onClick={() => dismiss(t.id)} aria-label="Dismiss" className="text-faint hover:text-ink">
+              {t.action && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    t.action?.onClick();
+                    dismiss(t.id);
+                  }}
+                  className="press -my-0.5 rounded-md px-1.5 py-0.5 font-semibold text-pine-text hover:bg-pine-soft"
+                >
+                  {t.action.label}
+                </button>
+              )}
+              <button type="button" onClick={() => dismiss(t.id)} aria-label="Dismiss" className="press text-faint hover:text-ink">
                 <X className="h-4 w-4" />
               </button>
             </div>

@@ -54,7 +54,7 @@ export function QuestionPicker({
           ))}
         </Select>
       </div>
-      <div className="flex items-center justify-between text-[13px] text-muted">
+      <div className="flex items-center justify-between text-[0.8125rem] text-muted">
         <span>{selected.length} selected</span>
         <div className="flex gap-3">
           <button type="button" className="hover:text-ink" onClick={() => onChange([...new Set([...selected, ...filtered.map((f) => f.id)])])}>
@@ -74,7 +74,7 @@ export function QuestionPicker({
             <label className="flex cursor-pointer items-start gap-3 px-3.5 py-2.5 hover:bg-surface-2">
               <input type="checkbox" checked={sel.has(q.id)} onChange={() => toggle(q.id)} className="mt-1 h-4 w-4 accent-[var(--pine)]" />
               <span className="min-w-0">
-                <span className="block text-[14.5px]">{q.text}</span>
+                <span className="block text-[0.90625rem]">{q.text}</span>
                 <span className="text-xs text-faint">{CATEGORIES.find((c) => c.id === q.category)?.label}</span>
               </span>
             </label>

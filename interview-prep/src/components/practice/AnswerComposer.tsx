@@ -41,7 +41,7 @@ export const AnswerComposer = forwardRef<HTMLTextAreaElement, AnswerComposerProp
           onActivity?.();
         }}
         placeholder={placeholder ?? "Type your answer as you would say it…"}
-        className="min-h-48 text-[16px] leading-relaxed sm:min-h-56"
+        className="min-h-48 text-[1rem] leading-relaxed sm:min-h-56"
         aria-label="Your answer"
       />
       <p className="mt-1.5 text-right text-xs text-faint" aria-live="polite">

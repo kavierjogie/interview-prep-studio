@@ -35,8 +35,8 @@ export function Segmented<T extends string>({
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "inline-flex shrink-0 items-center gap-1.5 rounded-lg font-medium transition-colors",
-            size === "sm" ? "h-7 px-2.5 text-[13px]" : "h-8 px-3 text-sm",
+            "inline-flex shrink-0 items-center gap-1.5 rounded-lg font-medium press",
+            size === "sm" ? "h-7 px-2.5 text-[0.8125rem]" : "h-8 px-3 text-sm",
             value === o.value ? "bg-surface text-ink shadow-sm" : "text-muted hover:text-ink",
           )}
         >

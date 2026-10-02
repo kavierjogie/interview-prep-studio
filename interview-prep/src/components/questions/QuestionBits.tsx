@@ -45,8 +45,8 @@ export function RatingControl({ value, onChange, size = "md" }: { value: AnswerR
             aria-pressed={active}
             onClick={() => onChange(active ? null : v)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border font-medium transition-colors",
-              size === "sm" ? "h-8 px-3 text-[13px]" : "h-9 px-3.5 text-sm",
+              "inline-flex items-center gap-1.5 rounded-full border font-medium press",
+              size === "sm" ? "h-8 px-3 text-[0.8125rem]" : "h-9 px-3.5 text-sm",
               active ? on : "border-line-strong text-muted hover:text-ink",
             )}
           >

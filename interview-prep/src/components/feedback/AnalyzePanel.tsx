@@ -56,7 +56,7 @@ export function AnalyzePanel({
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="flex items-start gap-2 text-[13px] text-muted">
+        <p className="flex items-start gap-2 text-[0.8125rem] text-muted">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-pine" />
           <span>Sends only this question and answer{effectiveRole ? " (with your target role)" : ""} to Groq&apos;s AI service. Nothing else from your workspace is shared.</span>
         </p>
@@ -72,10 +72,10 @@ export function AnalyzePanel({
         </Button>
       </div>
 
-      {tooShort && !feedback && <p className="text-[13px] text-faint">Write at least a couple of sentences to get feedback.</p>}
+      {tooShort && !feedback && <p className="text-[0.8125rem] text-faint">Write at least a couple of sentences to get feedback.</p>}
 
       {notConfigured && !feedback && (
-        <div className="rounded-xl border border-line bg-surface-2 p-3.5 text-[13px] text-muted">
+        <div className="rounded-xl border border-line bg-surface-2 p-3.5 text-[0.8125rem] text-muted">
           <p className="font-medium text-ink">AI feedback isn&apos;t set up on this deployment</p>
           <p className="mt-1">
             Add a <code className="rounded bg-sunken px-1">GROQ_API_KEY</code> environment variable (in <code className="rounded bg-sunken px-1">.env.local</code>{" "}

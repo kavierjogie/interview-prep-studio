@@ -7,6 +7,7 @@ import { runLocalChecks } from "@/lib/local-checks";
 import { useStore } from "@/lib/store";
 import type { CategoryId, SessionMode } from "@/lib/types";
 import { useStopwatch } from "@/lib/use-stopwatch";
+import { useUnsavedGuard } from "@/lib/use-unsaved-guard";
 import { formatDuration, wordCount } from "@/lib/utils";
 import { AnalyzePanel } from "@/components/feedback/AnalyzePanel";
 import { LocalChecks } from "@/components/feedback/LocalChecks";
@@ -48,6 +49,7 @@ export function PracticeRunner({
   const [draft, setDraft] = useState("");
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [confirmEnd, setConfirmEnd] = useState(false);
+  useUnsavedGuard(phase === "answer" && draft.trim() !== "");
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
   const current = plan[index];
@@ -135,7 +137,7 @@ export function PracticeRunner({
       {/* Progress header */}
       <div className="mb-6 flex items-center gap-4">
         <div className="min-w-0 flex-1">
-          <div className="mb-2 flex items-center justify-between text-[13px] text-muted">
+          <div className="mb-2 flex items-center justify-between text-[0.8125rem] text-muted">
             <span>
               Question {index + 1} of {plan.length}
             </span>
@@ -153,7 +155,7 @@ export function PracticeRunner({
           <section aria-labelledby="question-text" className="mb-6 flex flex-col-reverse gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 flex-1">
               <p className="mb-3 text-sm font-medium text-pine-text">{cat.label}</p>
-              <h1 id="question-text" className="text-[26px] font-semibold leading-[1.18] sm:text-[36px]">
+              <h1 id="question-text" className="text-[1.625rem] font-semibold leading-[1.18] sm:text-[2.25rem]">
                 {current.text}
               </h1>
               {mode === "mock" && index === 0 && sw.elapsed === 0 && (
@@ -238,7 +240,7 @@ export function PracticeRunner({
         <div className="space-y-6">
           <div>
             <p className="mb-2 text-sm font-medium text-pine-text">Answer recorded</p>
-            <h1 className="text-[24px] font-semibold leading-tight sm:text-[28px]">{current.text}</h1>
+            <h1 className="text-[1.5rem] font-semibold leading-tight sm:text-[1.75rem]">{current.text}</h1>
             <p className="mt-2 text-sm text-muted">
               Answered in {formatDuration(attempt.durationSec)}, {wordCount(attempt.answer)} words.
             </p>

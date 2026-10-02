@@ -189,7 +189,7 @@ function PracticeSetup({ onBegin }: { onBegin: (qs: Question[], src: PracticeSou
                 <input type="checkbox" checked={focusWeak} onChange={(e) => setFocusWeak(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--pine)]" />
                 <span>
                   <span className="block text-sm font-medium">Prioritise what needs work</span>
-                  <span className="text-[13px] text-muted">Starts with questions marked for improvement or never practised.</span>
+                  <span className="text-[0.8125rem] text-muted">Starts with questions marked for improvement or never practised.</span>
                 </span>
               </label>
             )}
@@ -206,7 +206,7 @@ function PracticeSetup({ onBegin }: { onBegin: (qs: Question[], src: PracticeSou
                       aria-checked={category === s.id}
                       onClick={() => setCategory(s.id)}
                       className={cn(
-                        "rounded-xl border p-3 text-left transition-colors",
+                        "rounded-xl border p-3 text-left press",
                         category === s.id ? "border-pine bg-pine-soft/60" : "border-line hover:border-line-strong",
                       )}
                     >
@@ -307,7 +307,7 @@ function PracticeSummary({ sessionId, onRestart }: { sessionId: string; onRestar
         <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-pine-soft text-pine-text">
           <Check className="h-6 w-6" />
         </span>
-        <h1 className="text-[30px] font-semibold">Session complete</h1>
+        <h1 className="text-[1.875rem] font-semibold">Session complete</h1>
         <p className="mt-1 text-muted">
           {answered.length} of {attempts.length || session?.plannedQuestions.length || 0} answered in {formatDuration(session?.totalDurationSec ?? 0)}.
         </p>
@@ -321,8 +321,8 @@ function PracticeSummary({ sessionId, onRestart }: { sessionId: string; onRestar
               return (
                 <li key={a.id} className="flex flex-col gap-1.5 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <p className="text-[15px] font-medium">{a.questionText}</p>
-                    <p className="text-[13px] text-muted">
+                    <p className="text-[0.9375rem] font-medium">{a.questionText}</p>
+                    <p className="text-[0.8125rem] text-muted">
                       {a.skipped ? "Skipped" : gaps.length === 0 ? "All quick checks passed" : `To improve: ${gaps.map((g) => g.label.toLowerCase()).join(", ")}`}
                     </p>
                   </div>

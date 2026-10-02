@@ -25,7 +25,7 @@ export function Sidebar() {
               href={href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-[10px] px-3 py-2 text-[14.5px] font-medium transition-colors",
+                "flex items-center gap-3 rounded-[10px] px-3 py-2 text-[0.90625rem] font-medium press",
                 active ? "bg-pine-soft text-pine-text" : "text-muted hover:bg-sunken hover:text-ink",
               )}
             >
@@ -35,7 +35,7 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="m-3 rounded-xl bg-surface-2 p-3.5 text-[12.5px] leading-relaxed text-muted">
+      <div className="m-3 rounded-xl bg-surface-2 p-3.5 text-[0.78125rem] leading-relaxed text-muted">
         <p className="mb-1 flex items-center gap-1.5 font-medium text-ink">
           <ShieldCheck className="h-3.5 w-3.5 text-pine" /> Stored in this browser
         </p>

@@ -16,7 +16,7 @@ export function ReadinessBlock({ readiness, size = 132 }: { readiness: Readiness
   return (
     <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
       <ProgressRing value={readiness.percent} size={size} stroke={11} label={`Interview readiness ${readiness.percent}%`}>
-        <span className="font-display text-[34px] font-semibold leading-none tabular-nums">{readiness.percent}%</span>
+        <span className="font-display text-[2.125rem] font-semibold leading-none tabular-nums">{readiness.percent}%</span>
         <span className="mt-1 text-xs text-muted">ready</span>
       </ProgressRing>
       <div className="min-w-0 flex-1 space-y-3">
@@ -47,7 +47,7 @@ export function StreakBlock({ streak }: { streak: StreakInfo }) {
         <p className="font-display text-2xl font-semibold leading-tight">
           {streak.current} day{streak.current === 1 ? "" : "s"}
         </p>
-        <p className="text-[13px] text-muted">
+        <p className="text-[0.8125rem] text-muted">
           {streak.practicedToday ? "Practised today" : streak.current > 0 ? "Practise today to keep it going" : "Practise today to start a streak"}
           {streak.longest > streak.current ? `. Best: ${streak.longest}` : ""}
         </p>
@@ -86,17 +86,17 @@ export function RecommendationList({ items, compact = false }: { items: Recommen
       {items.map((r) => (
         <li key={r.question.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
           <div className="min-w-0 flex-1">
-            <Link href={`/questions/${r.question.id}`} className="text-[15px] font-medium leading-snug hover:underline">
+            <Link href={`/questions/${r.question.id}`} className="text-[0.9375rem] font-medium leading-snug hover:underline">
               {r.question.text}
             </Link>
-            <p className="mt-0.5 text-[13px] text-muted">
+            <p className="mt-0.5 text-[0.8125rem] text-muted">
               {compact ? r.reason : `${getCategory(r.question.category).label}. ${r.reason}`}
             </p>
           </div>
           <Link
             href={`/practice?q=${r.question.id}`}
             aria-label={`Practise: ${r.question.text}`}
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium text-pine-text hover:bg-pine-soft"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-[0.8125rem] font-medium text-pine-text hover:bg-pine-soft"
           >
             <Play className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Practise</span>
           </Link>

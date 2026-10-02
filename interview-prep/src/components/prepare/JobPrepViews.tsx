@@ -8,6 +8,7 @@ import { AiRequestError, analyzeJobDescription } from "@/lib/ai-client";
 import { getCategory } from "@/lib/categories";
 import { analyzeJobLocally } from "@/lib/job-analysis-local";
 import { useStore } from "@/lib/store";
+import { useUnsavedGuard } from "@/lib/use-unsaved-guard";
 import type { JobAnalysis, JobPrep } from "@/lib/types";
 import { useAiStatus } from "@/lib/use-ai-status";
 import { formatDate, normalizeText, relativeTime } from "@/lib/utils";
@@ -15,7 +16,6 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Button, ButtonLink, IconButton } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field, Input, Textarea } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
@@ -75,15 +75,15 @@ export function JobPrepListView() {
             return (
               <Link key={p.id} href={`/prepare/${p.id}`} className="group flex flex-col rounded-2xl border border-line bg-surface p-5 hover:border-line-strong">
                 <p className="text-sm text-muted">{p.company || "Company not set"}</p>
-                <h3 className="mt-0.5 text-[17px] font-semibold leading-snug group-hover:underline">{p.role || "Role not set"}</h3>
+                <h3 className="mt-0.5 text-[1.0625rem] font-semibold leading-snug group-hover:underline">{p.role || "Role not set"}</h3>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   <InterviewCountdown date={p.interviewDate} />
                   {p.aiAnalysis && <Badge tone="pine">AI analysed</Badge>}
                 </div>
                 {analysis && analysis.skills.length > 0 && (
-                  <p className="mt-3 line-clamp-2 text-[13px] text-muted">{analysis.skills.slice(0, 6).join(", ")}</p>
+                  <p className="mt-3 line-clamp-2 text-[0.8125rem] text-muted">{analysis.skills.slice(0, 6).join(", ")}</p>
                 )}
-                <p className="mt-auto pt-4 text-[13px] text-faint">
+                <p className="mt-auto pt-4 text-[0.8125rem] text-faint">
                   {added} question{added === 1 ? "" : "s"} in your bank, updated {relativeTime(p.updatedAt)}
                 </p>
               </Link>
@@ -186,7 +186,7 @@ export function JobPrepDetailView() {
 type Tab = "overview" | "questions" | "details";
 
 function JobPrepDetail({ prep }: { prep: JobPrep }) {
-  const { data, updateJobPrep, deleteJobPrep, addQuestions } = useStore();
+  const { data, updateJobPrep, deleteJobPrep, addQuestions, restoreDeleted } = useStore();
   const router = useRouter();
   const toast = useToast();
   const aiStatus = useAiStatus();
@@ -194,10 +194,16 @@ function JobPrepDetail({ prep }: { prep: JobPrep }) {
   const [source, setSource] = useState<"ai" | "local">(prep.aiAnalysis ? "ai" : "local");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const analysis: JobAnalysis | null = source === "ai" && prep.aiAnalysis ? prep.aiAnalysis : prep.localAnalysis;
   const bankQuestions = data.questions.filter((q) => q.jobPrepId === prep.id);
+
+  const remove = () => {
+    const before = data;
+    deleteJobPrep(prep.id);
+    toast.success("Preparation deleted", { label: "Undo", onClick: () => restoreDeleted(before) });
+    router.push("/prepare");
+  };
 
   const runAi = async () => {
     setAiLoading(true);
@@ -222,7 +228,7 @@ function JobPrepDetail({ prep }: { prep: JobPrep }) {
         description={prep.company || undefined}
         actions={
           <>
-            <IconButton label="Delete preparation" onClick={() => setConfirmDelete(true)}>
+            <IconButton label="Delete preparation" onClick={remove}>
               <Trash2 className="h-4 w-4" />
             </IconButton>
             {bankQuestions.length > 0 && (
@@ -257,7 +263,7 @@ function JobPrepDetail({ prep }: { prep: JobPrep }) {
                 <span className="text-muted"> found keywords instantly on your device. AI analysis reads the description in context.</span>
               </p>
             )}
-            <p className="mt-2 flex items-start gap-1.5 text-[13px] text-muted">
+            <p className="mt-2 flex items-start gap-1.5 text-[0.8125rem] text-muted">
               <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-pine" />
               AI analysis sends the company, role and job description to Groq. Not your answers or stories.
             </p>
@@ -273,7 +279,7 @@ function JobPrepDetail({ prep }: { prep: JobPrep }) {
           </Button>
         </CardBody>
         {aiStatus && !aiStatus.aiConfigured && !prep.aiAnalysis && (
-          <p className="border-t border-line px-5 py-3 text-[13px] text-muted">
+          <p className="border-t border-line px-5 py-3 text-[0.8125rem] text-muted">
             AI isn&apos;t configured on this deployment (no GROQ_API_KEY). The quick scan below still works.
           </p>
         )}
@@ -333,19 +339,6 @@ function JobPrepDetail({ prep }: { prep: JobPrep }) {
           }}
         />
       )}
-
-      <ConfirmDialog
-        open={confirmDelete}
-        onCancel={() => setConfirmDelete(false)}
-        title="Delete this preparation?"
-        message="The job description and analysis will be removed. Questions you added to your bank are kept."
-        confirmLabel="Delete preparation"
-        onConfirm={() => {
-          deleteJobPrep(prep.id);
-          toast.success("Preparation deleted");
-          router.push("/prepare");
-        }}
-      />
     </>
   );
 }
@@ -368,7 +361,7 @@ function Overview({ analysis }: { analysis: JobAnalysis }) {
     <div className="grid gap-6 lg:grid-cols-2">
       <Card className="lg:col-span-2">
         <CardBody>
-          <p className="max-w-3xl text-[15.5px] leading-relaxed">{analysis.summary}</p>
+          <p className="max-w-3xl text-[0.96875rem] leading-relaxed">{analysis.summary}</p>
           <p className="mt-2 text-xs text-faint">
             {analysis.source === "ai" ? "AI analysis" : "Quick scan"} from {relativeTime(analysis.analyzedAt).toLowerCase()}
           </p>
@@ -397,7 +390,7 @@ function Overview({ analysis }: { analysis: JobAnalysis }) {
         <CardBody>
           <ul className="space-y-2">
             {analysis.prepTopics.map((t) => (
-              <li key={t} className="flex gap-2.5 text-[14.5px]">
+              <li key={t} className="flex gap-2.5 text-[0.90625rem]">
                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-pine" />
                 {t}
               </li>
@@ -470,13 +463,13 @@ function SuggestedQuestions({
                 )}
                 <div className="min-w-0 flex-1">
                   {existingId ? (
-                    <Link href={`/questions/${existingId}`} className="text-[15px] hover:underline">
+                    <Link href={`/questions/${existingId}`} className="text-[0.9375rem] hover:underline">
                       {q.text}
                     </Link>
                   ) : (
-                    <p className="text-[15px]">{q.text}</p>
+                    <p className="text-[0.9375rem]">{q.text}</p>
                   )}
-                  <p className="mt-0.5 text-[13px] text-muted">
+                  <p className="mt-0.5 text-[0.8125rem] text-muted">
                     {getCategory(q.category).label}. {q.reason}
                   </p>
                 </div>
@@ -519,6 +512,7 @@ function JobDetailsForm({
     form.description !== prep.description ||
     (form.interviewDate || null) !== prep.interviewDate ||
     form.notes !== prep.notes;
+  useUnsavedGuard(dirty);
 
   return (
     <Card>

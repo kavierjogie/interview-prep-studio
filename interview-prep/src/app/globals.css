@@ -86,18 +86,22 @@
 html {
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
+  /* Controls give their own press feedback (see .press), so drop the grey tap flash. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 15px;
+  /* rem, not px, so the user's browser text-size setting scales the whole app. */
+  font-size: 0.9375rem;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
+/* Tracking tightens as type grows: page titles most, card titles least. */
 h1,
 h2,
 h3,
@@ -105,6 +109,13 @@ h3,
   font-family: var(--font-display);
   font-optical-sizing: auto;
   letter-spacing: -0.015em;
+}
+h1 {
+  letter-spacing: -0.025em;
+}
+h2,
+h3 {
+  letter-spacing: -0.01em;
 }
 
 :focus-visible {
@@ -117,30 +128,124 @@ h3,
   background: var(--pine-soft);
 }
 
-dialog::backdrop {
-  background: rgb(10 15 25 / 0.45);
+/* Every button reacts the instant it's pressed; `press` below adds an eased release. */
+@layer base {
+  button:not(:disabled):active {
+    scale: 0.97;
+  }
 }
 
+/* Instant feedback on press, not on release. `scale` leaves any transform utilities alone. */
+@utility press {
+  transition-property: color, background-color, border-color, opacity, scale;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+  &:active:not(:disabled) {
+    scale: 0.97;
+    transition-duration: 50ms;
+  }
+}
+
+/* Translucent chrome: content scrolls underneath instead of behind an opaque strip. */
+.material {
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* The divider under a sticky bar only appears once content scrolls beneath it. */
+@supports (animation-timeline: scroll()) {
+  .scroll-edge {
+    animation: scroll-edge linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 32px;
+  }
+}
+
+@keyframes scroll-edge {
+  from {
+    border-bottom-color: transparent;
+  }
+}
+
+/* ---- Dialogs ----
+ * Phones get a bottom sheet that rises from the bottom edge and leaves the same way;
+ * wider screens get a centred dialog with a short rise and fade, mirrored on close. */
 dialog {
   color: var(--ink);
+  /* Keep a closing dialog positioned like an open one so the exit plays in place
+     (browsers without `overlay` drop it from the top layer immediately). */
+  position: fixed;
+  inset-block: 0;
+  z-index: 50;
+  transition:
+    translate 300ms cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 200ms ease,
+    overlay 300ms allow-discrete,
+    display 300ms allow-discrete;
 }
 
-/* Native dialog opens with a short rise; respects reduced motion. */
-dialog[open] {
-  animation: rise 160ms ease-out;
+dialog:not([open]) {
+  translate: 0 100%;
 }
 
-@keyframes rise {
-  from {
+@starting-style {
+  dialog[open] {
+    translate: 0 100%;
+  }
+}
+
+@media (width >= 40rem) {
+  dialog:not([open]) {
+    translate: 0 8px;
     opacity: 0;
-    transform: translateY(8px);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  @starting-style {
+    dialog[open] {
+      translate: 0 8px;
+      opacity: 0;
+    }
   }
 }
 
+dialog::backdrop {
+  background: rgb(10 15 25 / 0.45);
+  transition:
+    opacity 300ms ease,
+    overlay 300ms allow-discrete,
+    display 300ms allow-discrete;
+}
+
+dialog:not([open])::backdrop {
+  opacity: 0;
+}
+
+@starting-style {
+  dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* ---- Disclosure ----
+ * <details> content grows open instead of popping in (where the browser can animate to `auto`). */
+details {
+  interpolate-size: allow-keywords;
+}
+
+details::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition:
+    block-size 250ms cubic-bezier(0.32, 0.72, 0, 1),
+    content-visibility 250ms allow-discrete;
+}
+
+details[open]::details-content {
+  block-size: auto;
+}
+
+/* ---- Toasts: leave the way they came in ---- */
 @keyframes toast-in {
   from {
     opacity: 0;
@@ -152,16 +257,89 @@ dialog[open] {
   }
 }
 
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
 .animate-toast {
   animation: toast-in 180ms ease-out;
 }
 
+.animate-toast-out {
+  animation: toast-out 160ms ease-in forwards;
+}
+
+/* ---- Reduced motion: swap movement for short cross-fades rather than removing feedback ---- */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    /* Colour and opacity changes stay; position and size changes become instant. */
+    transition-property: color, background-color, border-color, opacity, overlay, display !important;
+  }
+
+  dialog {
+    translate: none !important;
+  }
+
+  dialog:not([open]) {
+    opacity: 0;
+  }
+
+  @starting-style {
+    dialog[open] {
+      opacity: 0;
+    }
+  }
+
+  .animate-toast {
+    animation: fade-in 150ms ease-out !important;
+  }
+
+  .animate-toast-out {
+    animation: fade-out 150ms ease-in forwards !important;
+  }
+
+  .scroll-edge {
+    animation: none !important;
+  }
+}
+
+/* Solid surfaces when the user asks for less transparency or more contrast. */
+@media (prefers-reduced-transparency: reduce) {
+  .material {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .material {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: var(--line-strong);
+  }
+
+  .scroll-edge {
+    animation: none !important;
   }
 }
 

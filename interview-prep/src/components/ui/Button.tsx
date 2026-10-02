@@ -6,7 +6,7 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "subt
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors disabled:opacity-50 disabled:pointer-events-none select-none";
+  "inline-flex items-center justify-center gap-2 font-medium whitespace-nowrap press disabled:opacity-50 disabled:pointer-events-none select-none";
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-pine text-pine-ink hover:bg-pine-hover",
@@ -17,9 +17,9 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-[13px] rounded-lg",
+  sm: "h-8 px-3 text-[0.8125rem] rounded-lg",
   md: "h-10 px-4 text-sm rounded-[10px]",
-  lg: "h-12 px-5 text-[15px] rounded-xl",
+  lg: "h-12 px-5 text-[0.9375rem] rounded-xl",
 };
 
 export function buttonClasses(variant: ButtonVariant = "secondary", size: ButtonSize = "md", className?: string) {
@@ -82,7 +82,7 @@ export function IconButton({ label, children, className, ...rest }: ButtonHTMLAt
       aria-label={label}
       title={label}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-sunken hover:text-ink disabled:opacity-40",
+        "press inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-sunken hover:text-ink disabled:opacity-40",
         className,
       )}
       {...rest}

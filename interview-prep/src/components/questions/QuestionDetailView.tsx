@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { BookOpenText, Link2, Pencil, Play, Plus, Save, Trash2, Wand2, X } from "lucide-react";
 import { estimateSpeakingSec } from "@/lib/local-checks";
 import { useStore } from "@/lib/store";
+import { useUnsavedGuard } from "@/lib/use-unsaved-guard";
 import type { Question, Story } from "@/lib/types";
 import { formatDuration, relativeTime, wordCount } from "@/lib/utils";
 import { AnalyzePanel } from "@/components/feedback/AnalyzePanel";
@@ -15,7 +16,6 @@ import { Badge } from "@/components/ui/Badge";
 import { Button, ButtonLink, IconButton } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Collapsible } from "@/components/ui/Collapsible";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Textarea } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
@@ -45,13 +45,12 @@ function storyAsAnswer(s: Story) {
 }
 
 function QuestionDetail({ question }: { question: Question }) {
-  const { data, updateQuestion, deleteQuestion } = useStore();
+  const { data, updateQuestion, deleteQuestion, restoreDeleted } = useStore();
   const toast = useToast();
   const router = useRouter();
   const [draft, setDraft] = useState(question.answer);
   const [notes, setNotes] = useState(question.notes);
   const [editing, setEditing] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const [linking, setLinking] = useState(false);
 
   const dirty = draft !== question.answer;
@@ -66,14 +65,14 @@ function QuestionDetail({ question }: { question: Question }) {
   );
   const jobPrep = question.jobPrepId ? data.jobPreps.find((j) => j.id === question.jobPrepId) : null;
 
-  useEffect(() => {
-    if (!dirty) return;
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [dirty]);
+  useUnsavedGuard(dirty);
+
+  const remove = () => {
+    const before = data;
+    deleteQuestion(question.id);
+    toast.success("Question deleted", { label: "Undo", onClick: () => restoreDeleted(before) });
+    router.push("/questions");
+  };
 
   const saveAnswer = () => {
     updateQuestion(question.id, { answer: draft.trim() });
@@ -91,7 +90,7 @@ function QuestionDetail({ question }: { question: Question }) {
             <IconButton label="Edit question" onClick={() => setEditing(true)}>
               <Pencil className="h-4 w-4" />
             </IconButton>
-            <IconButton label="Delete question" onClick={() => setConfirmDelete(true)}>
+            <IconButton label="Delete question" onClick={remove}>
               <Trash2 className="h-4 w-4" />
             </IconButton>
             <ButtonLink href={`/practice?q=${question.id}`} variant="primary" icon={<Play className="h-4 w-4" />}>
@@ -128,7 +127,7 @@ function QuestionDetail({ question }: { question: Question }) {
               <Textarea
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                className="min-h-56 text-[15.5px]"
+                className="min-h-56 text-[0.96875rem]"
                 placeholder="Situation → Task → Action → Result. Write it the way you'd say it."
                 aria-label="Your answer"
               />
@@ -312,19 +311,6 @@ function QuestionDetail({ question }: { question: Question }) {
           toast.success("Linked stories updated");
         }}
       />
-
-      <ConfirmDialog
-        open={confirmDelete}
-        onCancel={() => setConfirmDelete(false)}
-        title="Delete this question?"
-        message="The question, your answer, notes and AI feedback will be removed. Practice history is kept in your progress stats."
-        confirmLabel="Delete question"
-        onConfirm={() => {
-          deleteQuestion(question.id);
-          toast.success("Question deleted");
-          router.push("/questions");
-        }}
-      />
     </>
   );
 }
@@ -373,8 +359,8 @@ function StoryLinkForm({ stories, initial, onSave, onCancel }: { stories: Story[
                 onChange={() => setSel((x) => (x.includes(s.id) ? x.filter((y) => y !== s.id) : [...x, s.id]))}
               />
               <span>
-                <span className="block text-[15px] font-medium">{s.title}</span>
-                <span className="text-[13px] text-muted">{s.tags.join(", ") || s.context}</span>
+                <span className="block text-[0.9375rem] font-medium">{s.title}</span>
+                <span className="text-[0.8125rem] text-muted">{s.tags.join(", ") || s.context}</span>
               </span>
             </label>
           </li>
