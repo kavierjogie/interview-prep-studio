@@ -11,6 +11,7 @@ import type { Question, Story } from "@/lib/types";
 import { formatDuration, relativeTime, wordCount } from "@/lib/utils";
 import { AnalyzePanel } from "@/components/feedback/AnalyzePanel";
 import { FeedbackPanel } from "@/components/feedback/FeedbackPanel";
+import { HeardTranscript, VoiceBadge } from "@/components/practice/VoiceBits";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Button, ButtonLink, IconButton } from "@/components/ui/Button";
@@ -188,12 +189,14 @@ function QuestionDetail({ question }: { question: Question }) {
                           <span className="text-xs font-normal text-muted">
                             {formatDuration(a.durationSec)}, {wordCount(a.answer)} words
                           </span>
+                          <VoiceBadge attempt={a} />
                           <RatingBadge rating={a.selfRating} />
                           {a.feedback && <Badge tone="sky">AI feedback</Badge>}
                         </span>
                       }
                     >
                       <p className="whitespace-pre-line text-sm leading-relaxed">{a.answer || "No answer text recorded."}</p>
+                      <HeardTranscript attempt={a} />
                       {a.feedback && (
                         <div className="mt-4 border-t border-line pt-4">
                           <FeedbackPanel feedback={a.feedback} />

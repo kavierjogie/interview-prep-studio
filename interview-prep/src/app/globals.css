@@ -245,6 +245,22 @@ details[open]::details-content {
   block-size: auto;
 }
 
+/* ---- Microphone: two soft rings breathe out while listening ---- */
+@keyframes mic-ring {
+  from {
+    scale: 1;
+    opacity: 1;
+  }
+  to {
+    scale: 1.7;
+    opacity: 0;
+  }
+}
+
+.mic-ring {
+  animation: mic-ring 1.6s ease-out infinite;
+}
+
 /* ---- Toasts: leave the way they came in ---- */
 @keyframes toast-in {
   from {
@@ -318,6 +334,12 @@ details[open]::details-content {
 
   .scroll-edge {
     animation: none !important;
+  }
+
+  /* A steady halo instead of pulsing rings; the red button and "Listening…" still show the state. */
+  .mic-ring {
+    animation: none !important;
+    scale: 1.25;
   }
 }
 

@@ -67,15 +67,14 @@ export interface Story {
 }
 
 /**
- * How an answer was captured. Only "text" is implemented today.
- * "voice" is reserved so audio recording + transcription can be added later:
- * a voice attempt will store a transcript in `answer` and optional audio metadata in `media`.
+ * How an answer was captured. A "voice" attempt stores the user-edited transcript in `answer`
+ * and what the browser's speech recogniser heard in `originalTranscript`. Audio itself isn't stored.
  */
 export type InputMethod = "text" | "voice";
 
 export interface AttemptMedia {
   kind: "audio";
-  /** Key of a blob stored in a separate IndexedDB store (future). */
+  /** Reserved: key of a blob in a separate IndexedDB store, if recordings are ever kept. */
   blobKey: string;
   durationSec: number;
   mimeType: string;
@@ -90,6 +89,8 @@ export interface PracticeAttempt {
   category: CategoryId;
   answer: string;
   inputMethod: InputMethod;
+  /** Voice attempts only: the transcript as recognised, before the user's corrections. */
+  originalTranscript?: string;
   media?: AttemptMedia;
   durationSec: number;
   skipped: boolean;
@@ -243,6 +244,8 @@ export interface Settings {
   answerTargetSec: number;
   theme: ThemePreference;
   weeklyGoal: number;
+  /** Last answer mode chosen in practice and mock interviews. */
+  answerMode: InputMethod;
 }
 
 export interface AppData {

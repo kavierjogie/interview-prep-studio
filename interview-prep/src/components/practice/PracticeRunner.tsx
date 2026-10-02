@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Check, Lightbulb, Pause, Play, Save, SkipForward, X } from "lucide-react";
+import { ArrowRight, Check, Keyboard, Lightbulb, Mic, Pause, Play, Save, SkipForward, Sparkles, X } from "lucide-react";
 import { getCategory } from "@/lib/categories";
 import { runLocalChecks } from "@/lib/local-checks";
 import { useStore } from "@/lib/store";
-import type { CategoryId, SessionMode } from "@/lib/types";
+import type { CategoryId, InputMethod, SessionMode } from "@/lib/types";
+import { useAiStatus } from "@/lib/use-ai-status";
 import { useStopwatch } from "@/lib/use-stopwatch";
 import { useUnsavedGuard } from "@/lib/use-unsaved-guard";
+import { useVoiceAnswer } from "@/lib/use-voice-answer";
 import { formatDuration, wordCount } from "@/lib/utils";
 import { AnalyzePanel } from "@/components/feedback/AnalyzePanel";
 import { LocalChecks } from "@/components/feedback/LocalChecks";
@@ -17,9 +19,12 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Collapsible } from "@/components/ui/Collapsible";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ProgressBar } from "@/components/ui/Progress";
+import { Segmented } from "@/components/ui/Segmented";
 import { useToast } from "@/components/ui/Toast";
 import { AnswerComposer } from "./AnswerComposer";
 import { TimerRing } from "./TimerRing";
+import { HeardTranscript, VoiceBadge } from "./VoiceBits";
+import { VoiceComposer } from "./VoiceComposer";
 
 export interface PlannedQuestion {
   questionId: string | null;
@@ -41,7 +46,7 @@ export function PracticeRunner({
   /** Optional role/company context passed to AI analysis for job-specific practice. */
   context?: { role?: string; company?: string };
 }) {
-  const { data, recordAttempt, updateAttempt, updateQuestion, finishSession } = useStore();
+  const { data, recordAttempt, updateAttempt, updateQuestion, finishSession, updateSettings } = useStore();
   const toast = useToast();
   const sw = useStopwatch();
   const [index, setIndex] = useState(0);
@@ -49,8 +54,36 @@ export function PracticeRunner({
   const [draft, setDraft] = useState("");
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [confirmEnd, setConfirmEnd] = useState(false);
-  useUnsavedGuard(phase === "answer" && draft.trim() !== "");
+  const [answerMode, setAnswerMode] = useState<InputMethod>(data.settings.answerMode);
+  const [autoAnalyse, setAutoAnalyse] = useState(false);
   const composerRef = useRef<HTMLTextAreaElement>(null);
+  const aiStatus = useAiStatus();
+
+  // Voice: the transcript streams into the same draft the text box edits, and the timer runs while the mic is live.
+  const voice = useVoiceAnswer({
+    onTranscript: setDraft,
+    onListening: () => {
+      sw.reset();
+      sw.start();
+    },
+    onStopped: sw.pause,
+  });
+  const beforeTake = useRef({ draft: "", elapsed: 0 });
+  const startVoice = () => {
+    beforeTake.current = { draft, elapsed: sw.read() };
+    void voice.start();
+  };
+  const cancelVoice = () => {
+    voice.cancel();
+    setDraft(beforeTake.current.draft);
+    sw.reset(beforeTake.current.elapsed);
+  };
+  const changeMode = (m: InputMethod) => {
+    if (voice.active) voice.stop();
+    setAnswerMode(m);
+    updateSettings({ answerMode: m });
+  };
+  useUnsavedGuard(phase === "answer" && (draft.trim() !== "" || voice.active));
 
   const current = plan[index];
   const bankQuestion = current.questionId ? data.questions.find((q) => q.id === current.questionId) : undefined;
@@ -65,6 +98,7 @@ export function PracticeRunner({
   );
 
   const complete = () => {
+    voice.reset();
     sw.pause();
     finishSession(sessionId);
     onComplete();
@@ -75,14 +109,19 @@ export function PracticeRunner({
     setIndex((i) => i + 1);
     setDraft("");
     setAttemptId(null);
+    setAutoAnalyse(false);
     setPhase("answer");
+    voice.reset();
     sw.reset();
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const viaVoice = answerMode === "voice" && voice.supported;
+  const analyseOnSubmit = viaVoice && mode === "practice" && !!aiStatus?.aiConfigured;
+
   const submit = () => {
     const answer = draft.trim();
-    if (!answer) return;
+    if (!answer || voice.active) return;
     const secs = sw.read();
     sw.pause();
     const a = recordAttempt(sessionId, {
@@ -92,9 +131,12 @@ export function PracticeRunner({
       answer,
       durationSec: secs,
       skipped: false,
+      // Any recognised speech makes this a voice answer, even if it was then corrected by typing.
+      ...(voice.transcript ? { inputMethod: "voice" as const, originalTranscript: voice.transcript } : {}),
     });
     if (mode === "practice") {
       setAttemptId(a.id);
+      setAutoAnalyse(analyseOnSubmit);
       setPhase("review");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -164,7 +206,7 @@ export function PracticeRunner({
             </div>
             <div className="flex items-center gap-4 sm:flex-col">
               <TimerRing elapsed={sw.elapsed} targetSec={targetSec} running={sw.running} />
-              {sw.running ? (
+              {viaVoice ? null : sw.running ? (
                 <Button size="sm" variant="subtle" icon={<Pause className="h-3.5 w-3.5" />} onClick={sw.pause}>
                   Pause
                 </Button>
@@ -184,7 +226,30 @@ export function PracticeRunner({
             </div>
           </section>
 
-          <AnswerComposer ref={composerRef} method="text" value={draft} onChange={setDraft} onActivity={sw.start} />
+          <Segmented
+            label="Answer mode"
+            className="mb-4"
+            value={answerMode}
+            onChange={changeMode}
+            options={[
+              { value: "text", label: "Text", icon: <Keyboard className="h-4 w-4" /> },
+              { value: "voice", label: "Voice", icon: <Mic className="h-4 w-4" /> },
+            ]}
+          />
+
+          {answerMode === "voice" ? (
+            <VoiceComposer
+              voice={voice}
+              value={draft}
+              onChange={setDraft}
+              elapsed={sw.elapsed}
+              onStart={startVoice}
+              onCancel={cancelVoice}
+              onSwitchToText={() => changeMode("text")}
+            />
+          ) : (
+            <AnswerComposer ref={composerRef} method="text" value={draft} onChange={setDraft} onActivity={sw.start} />
+          )}
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <Button variant="ghost" icon={<SkipForward className="h-4 w-4" />} onClick={skip}>
@@ -192,8 +257,14 @@ export function PracticeRunner({
             </Button>
             <div className="flex items-center gap-3">
               <span className="hidden text-xs text-faint sm:inline">Ctrl + Enter to submit</span>
-              <Button variant="primary" size="lg" icon={<Check className="h-4 w-4" />} onClick={submit} disabled={!draft.trim()}>
-                Submit answer
+              <Button
+                variant="primary"
+                size="lg"
+                icon={analyseOnSubmit ? <Sparkles className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                onClick={submit}
+                disabled={!draft.trim() || voice.active}
+              >
+                {analyseOnSubmit ? "Analyse answer" : "Submit answer"}
               </Button>
             </div>
           </div>
@@ -239,11 +310,14 @@ export function PracticeRunner({
       {phase === "review" && attempt && (
         <div className="space-y-6">
           <div>
-            <p className="mb-2 text-sm font-medium text-pine-text">Answer recorded</p>
+            <p className="mb-2 flex items-center gap-2 text-sm font-medium text-pine-text">
+              Answer recorded <VoiceBadge attempt={attempt} />
+            </p>
             <h1 className="text-[1.5rem] font-semibold leading-tight sm:text-[1.75rem]">{current.text}</h1>
             <p className="mt-2 text-sm text-muted">
               Answered in {formatDuration(attempt.durationSec)}, {wordCount(attempt.answer)} words.
             </p>
+            <HeardTranscript attempt={attempt} />
           </div>
 
           <Card>
@@ -285,6 +359,7 @@ export function PracticeRunner({
                 company={context?.company}
                 feedback={attempt.feedback}
                 onFeedback={(fb) => updateAttempt(attempt.id, { feedback: fb })}
+                autoRun={autoAnalyse}
               />
             </CardBody>
           </Card>

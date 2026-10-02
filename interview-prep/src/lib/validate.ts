@@ -93,6 +93,7 @@ function sanitizeAttempt(v: unknown, now: string): PracticeAttempt | null {
     category: isCategoryId(v.category) ? v.category : "behavioural",
     answer: str(v.answer),
     inputMethod: v.inputMethod === "voice" ? "voice" : "text",
+    ...(str(v.originalTranscript) ? { originalTranscript: str(v.originalTranscript) } : {}),
     durationSec: Math.max(0, num(v.durationSec)),
     skipped: Boolean(v.skipped),
     selfRating: v.selfRating === "strong" || v.selfRating === "needs-work" ? v.selfRating : null,
@@ -187,6 +188,7 @@ export function sanitizeSettings(v: unknown): Settings {
     answerTargetSec: Math.min(600, Math.max(30, Math.round(num(v.answerTargetSec, DEFAULT_SETTINGS.answerTargetSec)))),
     theme,
     weeklyGoal: Math.min(100, Math.max(1, Math.round(num(v.weeklyGoal, DEFAULT_SETTINGS.weeklyGoal)))),
+    answerMode: v.answerMode === "voice" ? "voice" : "text",
   };
 }
 

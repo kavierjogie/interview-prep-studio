@@ -18,6 +18,7 @@ export const DEFAULT_SETTINGS: Settings = {
   answerTargetSec: 120,
   theme: "system",
   weeklyGoal: 10,
+  answerMode: "text",
 };
 
 export function emptyData(): AppData {

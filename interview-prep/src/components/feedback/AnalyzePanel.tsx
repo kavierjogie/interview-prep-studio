@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertCircle, RotateCw, ShieldCheck, Sparkles } from "lucide-react";
 import { AiRequestError, analyzeAnswer, ANALYZE_LIMITS } from "@/lib/ai-client";
 import type { CategoryId, StoredFeedback } from "@/lib/types";
@@ -20,6 +20,7 @@ export function AnalyzePanel({
   onFeedback,
   onUseSuggested,
   buttonLabel = "Analyse answer",
+  autoRun = false,
 }: {
   question: string;
   category: CategoryId;
@@ -30,6 +31,8 @@ export function AnalyzePanel({
   onFeedback: (fb: StoredFeedback) => void;
   onUseSuggested?: (text: string) => void;
   buttonLabel?: string;
+  /** Start the analysis as soon as AI is known to be available (used after "Analyse answer" in voice practice). */
+  autoRun?: boolean;
 }) {
   const status = useAiStatus();
   const { data } = useStore();
@@ -50,6 +53,17 @@ export function AnalyzePanel({
       setLoading(false);
     }
   };
+
+  const autoRan = useRef(false);
+  const runRef = useRef(run);
+  useEffect(() => {
+    runRef.current = run;
+  });
+  useEffect(() => {
+    if (!autoRun || autoRan.current || feedback || tooShort || !status?.aiConfigured) return;
+    autoRan.current = true;
+    void runRef.current();
+  }, [autoRun, feedback, tooShort, status]);
 
   const notConfigured = status && !status.aiConfigured;
 

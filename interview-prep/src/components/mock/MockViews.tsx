@@ -15,6 +15,7 @@ import { AnalyzePanel } from "@/components/feedback/AnalyzePanel";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PracticeRunner, type PlannedQuestion } from "@/components/practice/PracticeRunner";
 import { SessionHistory } from "@/components/practice/SessionHistory";
+import { HeardTranscript, VoiceBadge } from "@/components/practice/VoiceBits";
 import { CategoryBadge } from "@/components/questions/QuestionBits";
 import { QuestionPicker } from "@/components/questions/QuestionPicker";
 import { Badge } from "@/components/ui/Badge";
@@ -358,6 +359,7 @@ function AttemptReview({ attempt, index }: { attempt: PracticeAttempt; index: nu
           <span className="text-faint">{index + 1}.</span>
           <span>{attempt.questionText}</span>
           {attempt.skipped ? <Badge>Skipped</Badge> : <span className="text-xs font-normal text-muted">{formatDuration(attempt.durationSec)}, {wordCount(attempt.answer)} words</span>}
+          {!attempt.skipped && <VoiceBadge attempt={attempt} />}
           {attempt.feedback && <Badge tone="sky">AI feedback</Badge>}
         </span>
       }
@@ -368,7 +370,10 @@ function AttemptReview({ attempt, index }: { attempt: PracticeAttempt; index: nu
           <p className="text-sm text-muted">You skipped this question.</p>
         ) : (
           <>
-            <p className="whitespace-pre-line text-[0.90625rem] leading-relaxed">{attempt.answer}</p>
+            <div>
+              <p className="whitespace-pre-line text-[0.90625rem] leading-relaxed">{attempt.answer}</p>
+              <HeardTranscript attempt={attempt} />
+            </div>
             <div className="border-t border-line pt-4">
               <AnalyzePanel
                 question={attempt.questionText}

@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Collapsible } from "@/components/ui/Collapsible";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
+import { VoiceBadge } from "./VoiceBits";
 
 export function SessionHistory({ limit = 8, mode }: { limit?: number; mode?: PracticeSession["mode"] }) {
   const { data, deleteSession, restoreDeleted } = useStore();
@@ -69,6 +70,7 @@ export function SessionHistory({ limit = 8, mode }: { limit?: number; mode?: Pra
                   )}
                   <span className="flex items-center gap-2">
                     {a.skipped ? <Badge>Skipped</Badge> : <span className="text-xs text-faint">{formatDuration(a.durationSec)}</span>}
+                    {!a.skipped && <VoiceBadge attempt={a} />}
                     <RatingBadge rating={a.selfRating} />
                     {a.feedback && <Badge tone="sky">AI feedback</Badge>}
                   </span>

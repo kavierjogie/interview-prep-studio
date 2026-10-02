@@ -7,14 +7,8 @@ import { formatDuration, wordCount } from "@/lib/utils";
 import { Textarea } from "@/components/ui/Field";
 
 /**
- * The single place where a practice answer is captured.
- *
- * Today only `method="text"` exists. To add voice later, implement a recorder component that:
- *   1. records audio (MediaRecorder) and stores the blob in a separate IndexedDB store,
- *   2. transcribes it (e.g. a new server route calling Groq's Whisper endpoint),
- *   3. calls `onChange(transcript)` and passes `media` metadata up with the submission.
- * The runner, attempts, local checks and AI analysis all work on the resulting text,
- * so nothing else needs rebuilding.
+ * Typed practice answers. Spoken answers use VoiceComposer; both write into the same draft,
+ * so the runner, attempts, local checks and AI analysis all work on the resulting text.
  */
 export interface AnswerComposerProps {
   method: InputMethod;

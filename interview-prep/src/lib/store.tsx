@@ -35,6 +35,8 @@ export interface AttemptInput {
   durationSec: number;
   skipped: boolean;
   selfRating?: Question["rating"];
+  inputMethod?: PracticeAttempt["inputMethod"];
+  originalTranscript?: string;
 }
 
 interface StoreValue {
@@ -356,7 +358,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       questionText: input.questionText,
       category: input.category,
       answer: input.answer,
-      inputMethod: "text",
+      inputMethod: input.inputMethod ?? "text",
+      ...(input.originalTranscript ? { originalTranscript: input.originalTranscript } : {}),
       durationSec: Math.round(input.durationSec),
       skipped: input.skipped,
       selfRating: input.selfRating ?? null,

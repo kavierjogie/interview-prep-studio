@@ -31,10 +31,11 @@ export function useStopwatch() {
     setRunning(false);
   }, []);
 
-  const reset = useCallback(() => {
+  /** Stops and sets the clock to `toSec` (0 by default). */
+  const reset = useCallback((toSec = 0) => {
     startedAt.current = null;
-    accumulated.current = 0;
-    setElapsed(0);
+    accumulated.current = toSec;
+    setElapsed(toSec);
     setRunning(false);
   }, []);
 
