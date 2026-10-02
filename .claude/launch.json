@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "interview-prep", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}

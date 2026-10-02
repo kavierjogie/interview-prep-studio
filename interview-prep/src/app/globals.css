@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --surface-2: #f8f9fb;
+  --sunken: #eceff3;
+  --line: #dde2e8;
+  --line-strong: #c6cdd6;
+  --ink: #172033;
+  --muted: #5b6678;
+  --faint: #8a93a3;
+  --pine: #1e6b57;
+  --pine-hover: #185a49;
+  --pine-ink: #ffffff;
+  --pine-soft: #e3f1ec;
+  --pine-text: #17604d;
+  --marigold: #c98a12;
+  --marigold-soft: #fbf1dc;
+  --marigold-text: #8a5d06;
+  --rose: #b4413a;
+  --rose-soft: #f9e6e4;
+  --rose-text: #9a332d;
+  --sky-soft: #e6eef9;
+  --sky-text: #2b4c7e;
+  --focus: #2f6fdb;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0f141d;
+  --surface: #161d29;
+  --surface-2: #1a2230;
+  --sunken: #121823;
+  --line: #273142;
+  --line-strong: #364256;
+  --ink: #e6ebf2;
+  --muted: #a1abbb;
+  --faint: #737e90;
+  --pine: #3f9c80;
+  --pine-hover: #4caf91;
+  --pine-ink: #06120e;
+  --pine-soft: #17332b;
+  --pine-text: #7fd0b5;
+  --marigold: #e0a63a;
+  --marigold-soft: #352a14;
+  --marigold-text: #f0c46f;
+  --rose: #e0736b;
+  --rose-soft: #3a1f1e;
+  --rose-text: #f1a29b;
+  --sky-soft: #1b2a41;
+  --sky-text: #9dbdf0;
+  --focus: #7aa7f5;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-pine: var(--pine);
+  --color-pine-hover: var(--pine-hover);
+  --color-pine-ink: var(--pine-ink);
+  --color-pine-soft: var(--pine-soft);
+  --color-pine-text: var(--pine-text);
+  --color-marigold: var(--marigold);
+  --color-marigold-soft: var(--marigold-soft);
+  --color-marigold-text: var(--marigold-text);
+  --color-rose: var(--rose);
+  --color-rose-soft: var(--rose-soft);
+  --color-rose-text: var(--rose-text);
+  --color-sky-soft: var(--sky-soft);
+  --color-sky-text: var(--sky-text);
+  --font-sans: "Public Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Public Sans Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--pine-soft);
+}
+
+dialog::backdrop {
+  background: rgb(10 15 25 / 0.45);
+}
+
+dialog {
+  color: var(--ink);
+}
+
+/* Native dialog opens with a short rise; respects reduced motion. */
+dialog[open] {
+  animation: rise 160ms ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-toast {
+  animation: toast-in 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+textarea {
+  field-sizing: content;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
