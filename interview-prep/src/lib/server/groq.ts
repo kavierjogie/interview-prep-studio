@@ -11,7 +11,7 @@ if (typeof window !== "undefined") {
 }
 
 const GROQ_URL = process.env.GROQ_BASE_URL?.replace(/\/$/, "") ?? "https://api.groq.com/openai/v1";
-export const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+export const DEFAULT_MODEL = "openai/gpt-oss-120b";
 const TIMEOUT_MS = 25_000;
 
 export class GroqError extends Error {
@@ -42,6 +42,7 @@ interface ChatOptions {
 async function requestOnce(opts: ChatOptions, apiKey: string): Promise<string> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const model = getModel();
   let res: Response;
   try {
     res = await fetch(`${GROQ_URL}/chat/completions`, {
@@ -51,10 +52,12 @@ async function requestOnce(opts: ChatOptions, apiKey: string): Promise<string> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: getModel(),
+        model,
         temperature: opts.temperature ?? 0.4,
         max_tokens: opts.maxTokens ?? 2000,
         response_format: { type: "json_object" },
+        // gpt-oss reasoning tokens count toward max_tokens; keep them short so the JSON isn't cut off.
+        ...(model.startsWith("openai/gpt-oss") && { reasoning_effort: "low" }),
         messages: [
           { role: "system", content: opts.system },
           { role: "user", content: opts.user },
@@ -73,8 +76,9 @@ async function requestOnce(opts: ChatOptions, apiKey: string): Promise<string> {
   }
 
   if (!res.ok) {
-    // Log status only — never log request bodies (they contain the user's answer).
-    console.error(`[groq] HTTP ${res.status}`);
+    // Log status and Groq's error message only — never log request bodies (they contain the user's answer).
+    const errBody = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+    console.error(`[groq] HTTP ${res.status}: ${errBody?.error?.message ?? "no message"}`);
     if (res.status === 401 || res.status === 403) {
       throw new GroqError("upstream_error", "The AI service rejected the server's API key. Check GROQ_API_KEY in your environment variables.", 502);
     }

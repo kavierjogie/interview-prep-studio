@@ -72,7 +72,7 @@ The app works fully without a Groq key; only the "Analyse" buttons need it. With
 | Name | Required | Description |
 | --- | --- | --- |
 | `GROQ_API_KEY` | For AI features | Your Groq API key. **Server-side only.** Never prefix it with `NEXT_PUBLIC_`, never commit it. |
-| `GROQ_MODEL` | No | Override the model. Defaults to `llama-3.3-70b-versatile`. |
+| `GROQ_MODEL` | No | Override the model. Defaults to `openai/gpt-oss-120b`. |
 | `GROQ_BASE_URL` | No | Override the API base URL (for a proxy or local testing). Defaults to `https://api.groq.com/openai/v1`. |
 
 `.env.example` is included; `.env*` files are git-ignored.
